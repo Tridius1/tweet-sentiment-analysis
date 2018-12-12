@@ -24,10 +24,12 @@ def searchSentiment():
 	print("How many tweets?")
 	num = str(raw_input())
 
-	results = TwAPI.GetSearch(
-	    raw_query="l=en&result_type=popular&q=" + query + "&count=" + num)
+	toSearch = "l=en&result_type=popular&q=" + query + "&count=" + num
 
-	print("l=en&result_type=popular&q=" + query + "&count=" + num + "\n")
+	results = TwAPI.GetSearch(
+	    raw_query=toSearch)
+
+	print(toSearch)
 
 	for status in results:
 		tb = TextBlob(status.text)
@@ -38,3 +40,29 @@ def searchSentiment():
 		out += str(tb.sentiment) + '\n]\n'
 
 		print(out)
+
+def AverageSearchSentiment():
+	print("Enter query:")
+	query = str(raw_input()).replace(" ", "%20")
+	print("How many tweets?")
+	num = str(raw_input())
+
+	toSearch = "l=en&result_type=popular&q=" + query + "&count=" + num
+
+	results = TwAPI.GetSearch(
+	    raw_query=toSearch)
+
+	print(toSearch)
+
+	sumSentiment = 0
+	tCount = 0
+	for status in results:
+		tb = TextBlob(status.text)
+		sumSentiment += tb.sentiment.polarity * tb.sentiment.subjectivity
+		tCount += 1
+
+	print(tCount)
+	print(sumSentiment)
+
+
+AverageSearchSentiment()
