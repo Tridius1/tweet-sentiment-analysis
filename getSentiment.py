@@ -4,7 +4,6 @@ import csv
 
 import numpy as np
 from textblob import TextBlob
-from textblob.sentiments import NaiveBayesAnalyzer
 from scipy import stats
 
 
@@ -47,13 +46,7 @@ def sentimentAnalysis(Tswitch):
 
 	for tweet in tweetList:
 
-		tbSent = None
-		if implimentation == 1:
-			tbSent = TextBlob(tweet, analyzer=PatternAnalyzer()).sentiment
-		elif implimentation = 2:
-			tbSent = TextBlob(tweet, analyzer=NaiveBayesAnalyzer()).sentiment
-
-
+		tbSent = TextBlob(tweet).sentiment
 		product = tbSent.polarity * tbSent.subjectivity
 		if product != 0:
 			products.append(product)
@@ -94,18 +87,8 @@ work_stats = None
 school_stats = None
 
 if ans[0].lower() == 'y':
-
-	print("Analyze with:")
-	print("    1: PatternAnalyzer (based on pattern by CLiPS)")
-	print("    2: NaiveBayesAnalyzer (using NLTK)")
-	implimentation = input()
-
-	if not implimentation == 1 or implimentation == 2:
-		print("Invalid selection")
-		exit()
-
-	work_stats = statisticalAnalysis('work', sentimentAnalysis('work', implimentation))
-	school_stats = statisticalAnalysis('school', sentimentAnalysis('school', implimentation))
+	work_stats = statisticalAnalysis('work', sentimentAnalysis('work'))
+	school_stats = statisticalAnalysis('school', sentimentAnalysis('school'))
 elif ans[0].lower() == 'n':
 	try:
 		with open('work_tweets_sentiments.csv', 'rb') as f:
