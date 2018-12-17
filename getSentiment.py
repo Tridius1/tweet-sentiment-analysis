@@ -5,7 +5,6 @@ import csv
 import numpy as np
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
-from textblob.sentiments import PatternAnalyzer
 from scipy import stats
 
 
@@ -36,7 +35,7 @@ def loadTweetList(filename):
 
 	return tweetList
 
-def sentimentAnalysis(Tswitch, implimentation):
+def sentimentAnalysis(Tswitch):
 
 	tweetList = loadTweetList(Tswitch + '_tweets.json')
 	products = []
@@ -51,7 +50,7 @@ def sentimentAnalysis(Tswitch, implimentation):
 		tbSent = None
 		if implimentation == 1:
 			tbSent = TextBlob(tweet, analyzer=PatternAnalyzer()).sentiment
-		elif implimentation == 2:
+		elif implimentation = 2:
 			tbSent = TextBlob(tweet, analyzer=NaiveBayesAnalyzer()).sentiment
 
 
@@ -101,7 +100,7 @@ if ans[0].lower() == 'y':
 	print("    2: NaiveBayesAnalyzer (using NLTK)")
 	implimentation = input()
 
-	if not (implimentation == 1 or implimentation == 2):
+	if not implimentation == 1 or implimentation == 2:
 		print("Invalid selection")
 		exit()
 
