@@ -57,25 +57,59 @@ def sentimentAnalysis(Tswitch):
 	return products
 
 
-def statisticalAnalysis(Tswitch, products):
-	ProdStats = statGroup(len(products), products)
+def statisticalAnalysisHelper(dataset):
+	datasetStats = statGroup(len(dataset), dataset)
 
-	print(Tswitch + " related tweets have sentiment products with:")
-	ProdStats.sum = sum(products)
-	print("]    Sum: " + str(ProdStats.sum))
-	ProdStats.median = np.median(products)
-	print("]    Median: " + str(ProdStats.median))
-	ProdStats.mean = np.mean(products)
-	print("]    Mean: " + str(ProdStats.mean))
-	ProdStats.stdev = np.std(products)
-	print("]    Standard deviation: " + str(ProdStats.stdev))
-	ProdStats.meanOfAbs = np.std(map(abs, products))
-	print("]    Mean of absolutes: " + str(ProdStats.meanOfAbs))
+	print("]    N: " + str(datasetStats.n))
+	datasetStats.sum = sum(dataset)
+	print("]    Sum: " + str(datasetStats.sum))
+	datasetStats.median = np.median(dataset)
+	print("]    Median: " + str(datasetStats.median))
+	datasetStats.mean = np.mean(dataset)
+	print("]    Mean: " + str(datasetStats.mean))
+	datasetStats.stdev = np.std(dataset)
+	print("]    Standard deviation: " + str(datasetStats.stdev))
+	datasetStats.meanOfAbs = np.std(map(abs, dataset))
+	print("]    Mean of absolutes: " + str(datasetStats.meanOfAbs))
 
-	return ProdStats
+	return datasetStats
+
+
+def statisticalAnalysis(Tswitch, datasets):
+	retStats = {}
+
+	print('\n' + Tswitch + " related tweets have polarities with:")
+	retStats['polarities'] = statisticalAnalysisHelper(datasets['polarities'])
+
+	print('\n' + Tswitch + " related tweets have sentiments with:")
+	retStats['subjectivities'] = statisticalAnalysisHelper(datasets['subjectivities'])
+
+	print('\n' + Tswitch + " related tweets have products with:")
+	retStats['products'] = statisticalAnalysisHelper(datasets['products'])
+
+	return retStats
 
 
 
+def loadLists(filename):
+	outLists = {'polarities': [], 'subjectivities': [], 'products': []}
+
+	with open(filename, 'rb') as f:
+			reader = csv.reader(f)
+			full_list = list(reader)
+	f.close()
+	for elem in full_list:
+		outLists['polarities'].append(float(elem[0]))
+		outLists['subjectivities'].append(float(elem[1]))
+		outLists['products'].append(float(elem[2]))
+
+	return outLists
+
+def calcStats(work_stats, school_stats):
+	t_value, p_value = stats.ttest_ind(work_stats.list, school_stats.list, equal_var=False)
+
+	print("]    t-value: " + str(t_value))
+	print("]    p-value: " + str(p_value))
 
 
 # Running
@@ -91,24 +125,12 @@ if ans[0].lower() == 'y':
 	school_stats = statisticalAnalysis('school', sentimentAnalysis('school'))
 elif ans[0].lower() == 'n':
 	try:
-		with open('work_tweets_sentiments.csv', 'rb') as f:
-			reader = csv.reader(f)
-			full_list = list(reader)
-		f.close()
-		work_list = []
-		for elem in full_list:
-			work_list.append(float(elem[2]))
 
-		with open('school_tweets_sentiments.csv', 'rb') as f:
-			reader = csv.reader(f)
-			full_list = list(reader)
-		f.close()
-		school_list = []
-		for elem in full_list:
-			school_list.append(float(elem[2]))
+		work_lists = loadLists('work_tweets_sentiments.csv')
+		school_lists = loadLists('school_tweets_sentiments.csv')
 
-		work_stats = statisticalAnalysis('work', work_list)
-		school_stats = statisticalAnalysis('school', school_list)
+		work_stats = statisticalAnalysis('work', work_lists)
+		school_stats = statisticalAnalysis('school', school_lists)
 
 	except Exception as e:
 		print("Error opening file:")
@@ -120,11 +142,18 @@ else:
 
 ### Stats
 
-t_value, p_value = stats.ttest_ind(work_stats.list, school_stats.list, equal_var=False)
+print("\nPolarities: Two-sided test for the null hypothesis yeilds: ")
+calcStats(work_stats['polarities'], school_stats['polarities'])
 
-print("\nTwo-sided test for the null hypothesis yeilds: ")
-print("]    t-value: " + str(t_value))
-print("]    p-value: " + str(p_value))
+print("\nSubjectivities: Two-sided test for the null hypothesis yeilds: ")
+calcStats(work_stats['subjectivities'], school_stats['subjectivities'])
+
+
+print("\nProducts: Two-sided test for the null hypothesis yeilds: ")
+calcStats(work_stats['products'], school_stats['products'])
+
+
+
 
 
 
